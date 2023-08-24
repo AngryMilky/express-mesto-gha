@@ -9,7 +9,7 @@ module.exports.getCards = (req, res) => Card.find({})
 module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
 
-  return Card.findById(cardId)
+  return Card.findByIdAndDelete(cardId)
     .then((card) => {
       if (!card) {
         return res.status(404).send('Карточка с указанным _id не найдена');

@@ -1,4 +1,4 @@
-const User = require('../models/user').default;
+const User = require('../models/user');
 
 // возвращение всех пользователей
 module.exports.getUsers = (req, res) => User.find({})
@@ -7,9 +7,9 @@ module.exports.getUsers = (req, res) => User.find({})
 
 // нахождение пользователя по id
 module.exports.getUserById = (req, res) => {
-  const { id } = req.params;
+  const { userId } = req.params;
 
-  return User.findById(id)
+  return User.findById(userId)
     .then((user) => {
       if (!user) {
         return res.status(404).send('Пользователь по указанному _id не найден');
@@ -20,14 +20,16 @@ module.exports.getUserById = (req, res) => {
 };
 
 // создание нового пользователя
-module.exports.createUser = (req, res) => User.create({ ...req.body })
-  .then((user) => res.status(201).send(user))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      return res.status(400).send('Переданы некорректные данные при создании пользователя');
-    }
-    return res.status(500).send('Server Error');
-  });
+module.exports.createUser = (req, res) => {
+  User.create({ ...req.body })
+    .then((user) => res.status(201).send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send('Переданы некорректные данные при создании пользователя');
+      }
+      return res.status(500).send('Server Error');
+    });
+};
 
 // обновление профиля
 module.exports.updateProfile = (req, res) => {
