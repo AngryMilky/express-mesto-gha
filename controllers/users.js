@@ -40,13 +40,13 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.status(OK).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send(
+        res.status(BAD_REQUEST).send(
           {
             message: 'Переданы некорректные данные при создании пользователя',
           },
         );
       }
-      return res.status(SERVER_ERROR).send(
+      res.status(SERVER_ERROR).send(
         {
           message: 'На сервере произошла ошибка',
         },
