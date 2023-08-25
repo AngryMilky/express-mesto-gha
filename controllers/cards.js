@@ -27,11 +27,20 @@ module.exports.deleteCard = (req, res) => {
       }
       return res.status(OK).send({ message: 'Успешно' });
     })
-    .catch(() => res.status(SERVER_ERROR).send(
-      {
-        message: 'На сервере произошла ошибка',
-      },
-    ));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST).send(
+          {
+            message: 'Переданы некорректные данные при создании карточки',
+          },
+        );
+      }
+      res.status(SERVER_ERROR).send(
+        {
+          message: 'На сервере произошла ошибка',
+        },
+      );
+    });
 };
 
 // создание карточки
@@ -74,7 +83,7 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
     return res.status(OK).send(card);
   })
   .catch((err) => {
-    if (err.name === 'ValidationError') {
+    if (err.name === 'CastError') {
       return res.status(BAD_REQUEST).send(
         {
           message: 'Переданы некорректные данные для постановки лайка',

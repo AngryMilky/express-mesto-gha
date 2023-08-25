@@ -27,11 +27,20 @@ module.exports.getUserById = (req, res) => {
       }
       return res.status(OK).send(user);
     })
-    .catch(() => res.status(SERVER_ERROR).send(
-      {
-        message: 'На сервере произошла ошибка',
-      },
-    ));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST).send(
+          {
+            message: 'Переданы некорректные данные для постановки лайка',
+          },
+        );
+      }
+      res.status(SERVER_ERROR).send(
+        {
+          message: 'На сервере произошла ошибка',
+        },
+      );
+    });
 };
 
 // создание нового пользователя
