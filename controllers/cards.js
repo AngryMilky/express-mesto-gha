@@ -35,22 +35,27 @@ module.exports.deleteCard = (req, res) => {
 };
 
 // создание карточки
-module.exports.createCard = (req, res) => Card.create({ ...req.body })
-  .then((card) => res.status(OK).send(card))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      return res.status(BAD_REQUEST).send(
+module.exports.createCard = (req, res) => {
+  const { name, link } = req.body;
+  const owner = req.user._id;
+
+  Card.create({ name, link, owner })
+    .then((card) => res.status(OK).send(card))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(BAD_REQUEST).send(
+          {
+            message: 'Переданы некорректные данные при создании карточки',
+          },
+        );
+      }
+      return res.status(SERVER_ERROR).send(
         {
-          message: 'Переданы некорректные данные при создании карточки',
+          message: 'На сервере произошла ошибка',
         },
       );
-    }
-    return res.status(SERVER_ERROR).send(
-      {
-        message: 'На сервере произошла ошибка',
-      },
-    );
-  });
+    });
+};
 
 // поставить лайк карточке
 module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
