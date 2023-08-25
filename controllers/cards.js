@@ -114,10 +114,10 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
     return res.status(OK).send(card);
   })
   .catch((err) => {
-    if (err.name === 'ValidationError') {
+    if (err.name === 'CastError') {
       return res.status(BAD_REQUEST).send(
         {
-          message: 'Переданы некорректные данные для снятия лайка',
+          message: 'Переданы некорректные данные для удаления лайка',
         },
       );
     }
