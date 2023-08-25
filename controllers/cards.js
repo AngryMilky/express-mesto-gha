@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 const {
-  OK, BAD_REQUEST, NOT_FOUND, SERVER_ERROR,
+  OK, CREATED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR,
 } = require('../errors/errors');
 
 // показывает все карточки
@@ -49,7 +49,7 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(OK).send(card))
+    .then((card) => res.status(CREATED).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(BAD_REQUEST).send(

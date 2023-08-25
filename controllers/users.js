@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const {
-  OK, BAD_REQUEST, NOT_FOUND, SERVER_ERROR,
+  OK, CREATED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR,
 } = require('../errors/errors');
 
 // возвращение всех пользователей
@@ -46,16 +46,16 @@ module.exports.getUserById = (req, res) => {
 // создание нового пользователя
 module.exports.createUser = (req, res) => {
   User.create({ ...req.body })
-    .then((user) => res.status(OK).send(user))
+    .then((user) => res.status(CREATED).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send(
+        return res.status(BAD_REQUEST).send(
           {
             message: 'Переданы некорректные данные при создании пользователя',
           },
         );
       }
-      res.status(SERVER_ERROR).send(
+      return res.status(SERVER_ERROR).send(
         {
           message: 'На сервере произошла ошибка',
         },

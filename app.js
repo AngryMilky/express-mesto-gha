@@ -7,7 +7,7 @@ const {
   NOT_FOUND,
 } = require('./errors/errors');
 
-const port = 3000;
+const { port = 3000 } = process.env;
 
 const app = express();
 
