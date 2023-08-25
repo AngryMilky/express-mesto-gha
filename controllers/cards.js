@@ -35,7 +35,7 @@ module.exports.deleteCard = (req, res) => {
           },
         );
       }
-      res.status(SERVER_ERROR).send(
+      return res.status(SERVER_ERROR).send(
         {
           message: 'На сервере произошла ошибка',
         },

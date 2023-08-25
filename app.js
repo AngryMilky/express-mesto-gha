@@ -5,7 +5,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const {
   NOT_FOUND,
-} = require('../errors/errors');
+} = require('./errors/errors');
 
 const port = 3000;
 
