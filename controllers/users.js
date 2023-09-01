@@ -1,7 +1,22 @@
 const User = require('../models/user');
 const {
-  OK, CREATED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR,
+  OK, CREATED, BAD_REQUEST, UNAUTHORIZED, NOT_FOUND, CONFLICT, SERVER_ERROR,
 } = require('../errors/errors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+// получение информации о текущем пользователе
+module.exports.getUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      res.status(200).send({ data: user });
+    })
+    .catch((err) => res.status(SERVER_ERROR).send(
+      {
+        message: 'На сервере произошла ошибка',
+      },
+    ));
+};
 
 // возвращение всех пользователей
 module.exports.getUsers = (req, res) => User.find({})
@@ -45,9 +60,32 @@ module.exports.getUserById = (req, res) => {
 
 // создание нового пользователя
 module.exports.createUser = (req, res) => {
-  User.create({ ...req.body })
-    .then((user) => res.status(CREATED).send(user))
+  const {
+    name, about, avatar, email,
+  } = req.body;
+
+  // хеширование пароля
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then((user) => {
+      res.status(CREATED).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+        email: user.email,
+      });
+    })
     .catch((err) => {
+      if (err.code === 11000) {
+        return res.status(CONFLICT).send(
+          {
+            message: 'Пользователь с таким email уже существует',
+          },
+        );
+      }
       if (err.name === 'ValidationError') {
         return res.status(BAD_REQUEST).send(
           {
@@ -61,6 +99,22 @@ module.exports.createUser = (req, res) => {
         },
       );
     });
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // создание токена
+      const token = jwt.sign(
+        { _id: user._id },
+        'some-secret-key',
+        { expiresIn: '7d' },
+      );
+      res.status(200).send({ token });
+    })
+    .catch(next); // !!! При неправильных почте и пароле контроллер должен вернуть ошибку 401.
 };
 
 // обновление профиля

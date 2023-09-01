@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 const {
-  OK, CREATED, BAD_REQUEST, NOT_FOUND, SERVER_ERROR,
+  OK, CREATED, FORBIDDEN, BAD_REQUEST, NOT_FOUND, SERVER_ERROR,
 } = require('../errors/errors');
 
 // показывает все карточки
@@ -22,6 +22,13 @@ module.exports.deleteCard = (req, res) => {
         return res.status(NOT_FOUND).send(
           {
             message: 'Карточка с указанным _id не найдена',
+          },
+        );
+      }
+      if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
+        return res.status(FORBIDDEN).send(
+          {
+            message: 'Недостаточно прав для удаления карточки',
           },
         );
       }

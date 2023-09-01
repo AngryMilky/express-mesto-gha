@@ -1,8 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const bodyParser = require('body-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 const {
   NOT_FOUND,
 } = require('./errors/errors');
@@ -18,16 +21,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64e790fd1bbf109b495ccaed',
-  };
+app.post('/signin', login);
+app.post('/signup', createUser);
 
-  next();
-});
+app.use('/users', auth, userRouter);
+app.use('/cards', auth, cardRouter);
 
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
+app.use(errors());
 
 app.use((req, res, next) => {
   next(res.status(NOT_FOUND).send(
