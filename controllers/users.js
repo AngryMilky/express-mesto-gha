@@ -1,9 +1,9 @@
-const User = require('../models/user');
-const {
-  OK, CREATED, BAD_REQUEST, UNAUTHORIZED, NOT_FOUND, CONFLICT, SERVER_ERROR,
-} = require('../errors/errors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+const {
+  OK, CREATED, BAD_REQUEST, NOT_FOUND, CONFLICT, SERVER_ERROR,
+} = require('../errors/errors');
 
 // получение информации о текущем пользователе
 module.exports.getUser = (req, res) => {
@@ -11,7 +11,7 @@ module.exports.getUser = (req, res) => {
     .then((user) => {
       res.status(200).send({ data: user });
     })
-    .catch((err) => res.status(SERVER_ERROR).send(
+    .catch(() => res.status(SERVER_ERROR).send(
       {
         message: 'На сервере произошла ошибка',
       },
@@ -104,7 +104,7 @@ module.exports.createUser = (req, res) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password, res)
     .then((user) => {
       // создание токена
       const token = jwt.sign(
@@ -114,7 +114,7 @@ module.exports.login = (req, res, next) => {
       );
       res.status(200).send({ token });
     })
-    .catch(next); // !!! При неправильных почте и пароле контроллер должен вернуть ошибку 401.
+    .catch(next);
 };
 
 // обновление профиля
