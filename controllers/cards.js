@@ -16,7 +16,6 @@ module.exports.getCards = (req, res, next) => {
 // удаление карточки
 module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-
   Card.findById(cardId)
     .then((card) => {
       if (!card) {
@@ -25,7 +24,7 @@ module.exports.deleteCard = (req, res, next) => {
       if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
         throw new ForbiddenError('Недостаточно прав для удаления карточки');
       }
-      return Card.remove(card);
+      return Card.deleteOne(card);
     })
     .then(() => res.status(OK).send({ message: 'Успешно' }))
     .catch((err) => {
